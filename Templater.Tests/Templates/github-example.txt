@@ -1,0 +1,18 @@
+﻿<%
+    var x = 5 * 3;
+%>
+
+The result is: '<% =x %>'
+
+<% for (var i = 0; i < 3; i++) { %>
+Hello for the <%
+    if (i === 0) {
+        output.Write("first");
+    } else if (i === 1) {
+        output.Write("second");
+    } else if (i === 2) {
+        output.Write("third");
+    }
+%> time! <% } %>
+
+Thanks
