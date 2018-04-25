@@ -13,66 +13,77 @@ namespace Templater
         private const string WRITE = "output.Write({1}{0}{1});";
         private const string WRITE_LINE = "output.WriteLine({1}{0}{1});";
 
-        private Regex scriptBracket;
-        private Jint.Engine engine;
+        private Regex _scriptBracket;
+        private Jint.Engine _engine;
 
         public string FilePath { get; private set; }
 
 
         public Template(string filePath)
         {
-            this.FilePath = filePath;
-            this.scriptBracket = new Regex("<%|%>");
-            this.engine = null;
+            FilePath = filePath;
+            _scriptBracket = new Regex("<%|%>");
+            _engine = new Jint.Engine();
         }
 
+
+        public void SetValue(object value, string name)
+        {
+            _engine.SetValue(name, value);
+        }
+
+        public object GetValue(string name)
+        {
+            var value = _engine.GetValue(name);
+            if (value == null)
+            {
+                return null;
+            }
+            return value.AsObject();
+        }
 
         public byte[] Render(object model = null)
         {
             MemoryStream stream = new MemoryStream();
-            this.Render(stream, model);
+            Render(stream, model);
             return stream.ToArray();
         }
 
 
-        public void Render(Stream stream, object model = null)
+        public void Render(Stream outStream, object model = null)
         {
-            StreamWriter outputWriter = new StreamWriter(stream, Encoding.UTF8);
-            this.Render(outputWriter, model);
+            StreamWriter outputWriter = new StreamWriter(outStream, Encoding.UTF8);
+            Render(outputWriter, model);
         }
 
         public void Render(TextWriter output, object model = null)
         {
-            if (this.engine == null)
-            {
-                string script = this.LoadScript();
-                this.engine = new Jint.Engine();
-                Console.WriteLine(script);
-                this.engine.Execute(script);
-            }
-            this.engine.SetValue("output", output);
-            this.engine.SetValue("model", model);
-            this.engine.Execute("render()");
+            string script = LoadScript();
+            Console.WriteLine(script);
+            _engine.Execute(script);
+            _engine.SetValue("output", output);
+            _engine.SetValue("model", model);
+            _engine.Execute("render()");
             output.Flush();
         }
 
         private string LoadScript()
         {
             StringBuilder script = new StringBuilder("function render() {\n\n");
-            this.CompileTemplate(script);
+            CompileTemplate(script);
             script.Append("\n\n}");
             return script.ToString();
         }
 
         private void CompileTemplate(StringBuilder output)
         {
-            using (StreamReader reader = new StreamReader(this.FilePath))
+            using (StreamReader reader = new StreamReader(FilePath))
             {
                 bool insideScript = false;
                 string line = reader.ReadLine();
                 while (line != null)
                 {
-                    this.Convert(output, line, ref insideScript);
+                    Convert(output, line, ref insideScript);
                     line = reader.ReadLine();
                 }
 
@@ -82,7 +93,7 @@ namespace Templater
         private void Convert(StringBuilder converted, string line, ref bool insideScript)
         {
             string escapedLine = line.Replace("'", "\\'");
-            var match = this.scriptBracket.Match(escapedLine);
+            var match = _scriptBracket.Match(escapedLine);
             int lastIndex = 0;
 
             while (match.Success) 
