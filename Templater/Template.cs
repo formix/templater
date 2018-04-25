@@ -53,18 +53,18 @@ namespace Templater
             Render(outputWriter, model);
         }
 
-        public void Render(TextWriter output, object model = null)
+        public string Render(TextWriter output, object model = null)
         {
-            string script = LoadScript();
-            Console.WriteLine(script);
+            string script = BuildScript();
             _engine.Execute(script);
             _engine.SetValue("output", output);
             _engine.SetValue("model", model);
             _engine.Execute("render()");
             output.Flush();
+            return script;
         }
 
-        private string LoadScript()
+        private string BuildScript()
         {
             StringBuilder script = new StringBuilder("function render() {\n\n");
             CompileTemplate(script);
