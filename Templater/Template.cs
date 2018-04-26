@@ -10,16 +10,28 @@ namespace Templater
         private const string WRITE = "output.Write({1}{0}{1});";
         private const string WRITE_LINE = "output.WriteLine({1}{0}{1});";
 
-        private Regex _scriptBracket;
         private Jint.Engine _engine;
+        private string _script;
+        private bool _scriptLoaded;
 
-        public string FilePath { get; private set; }
-
-
-        public Template(string filePath)
+        public string Text { get; private set; }
+        public string Script
         {
-            FilePath = filePath;
-            _scriptBracket = new Regex("<%|%>");
+            get
+            {
+                if (_script == null)
+                {
+                    _script = BuildScript();
+                }
+                return _script;
+            }
+        }
+
+        public Template(string text)
+        {
+            Text = text;
+            _script = null;
+            _scriptLoaded = false;
             _engine = new Jint.Engine();
         }
 
@@ -53,15 +65,17 @@ namespace Templater
             Render(outputWriter, model);
         }
 
-        public string Render(TextWriter output, object model = null)
+        public void Render(TextWriter output, object model = null)
         {
-            string script = BuildScript();
-            _engine.Execute(script);
-            _engine.SetValue("output", output);
+            if (!_scriptLoaded)
+            {
+                _engine.Execute(Script);
+                _engine.SetValue("output", output);
+                _scriptLoaded = true;
+            }
             _engine.SetValue("model", model);
             _engine.Execute("render()");
             output.Flush();
-            return script;
         }
 
         private string BuildScript()
@@ -74,7 +88,7 @@ namespace Templater
 
         private void CompileTemplate(StringBuilder output)
         {
-            using (StreamReader reader = new StreamReader(FilePath))
+            using (TextReader reader = new StringReader(Text))
             {
                 bool insideScript = false;
                 string line = reader.ReadLine();
@@ -84,13 +98,18 @@ namespace Templater
                     line = reader.ReadLine();
                 }
 
+                if (insideScript)
+                {
+                    throw new ClosingTagNotFoundException();
+                }
             }
         }
 
         private void Convert(StringBuilder converted, string line, ref bool insideScript)
         {
             string escapedLine = line.Replace("'", "\\'");
-            var match = _scriptBracket.Match(escapedLine);
+            var scriptBracket = new Regex("<%|%>");
+            var match = scriptBracket.Match(escapedLine);
             int lastIndex = 0;
 
             while (match.Success) 

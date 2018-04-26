@@ -11,7 +11,13 @@ namespace Templater.Tests
         [TestMethod]
         public void TestRender()
         {
-            var template = new Template("Templates/TextTemplate.asp");
+            string templateText = null;
+            using (StreamReader sr = new StreamReader("Templates/TextTemplate.asp"))
+            {
+                templateText = sr.ReadToEnd();
+            }
+
+            var template = new Template(templateText);
             var q = new Quote()
             {
                 Title = "Demo Quote"
@@ -42,12 +48,19 @@ namespace Templater.Tests
             });
 
             template.Render(Console.Out, new { Quote = q });
+
+            Console.WriteLine(template.Script);
         }
 
         [TestMethod]
         public void TestRenderGithubTemplate()
         {
-            var template = new Template("Templates/github-example.txt");
+            string templateText = null;
+            using (StreamReader sr = new StreamReader("Templates/github-example.txt"))
+            {
+                templateText = sr.ReadToEnd();
+            }
+            var template = new Template(templateText);
             TextWriter tw = new StringWriter();
             template.Render(tw);
             string rendered = tw.ToString();
