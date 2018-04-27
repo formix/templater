@@ -28,6 +28,6 @@
 %>|<% =align.Right("Sub-total", 45) %> | <% =align.Right(formattedSubtotal, 8) %> |
 +----------------------------------------------+----------+
 
-<% tryMe(1); %><%
-tryMe(2);
+<% tryMe(11); %><%
+tryMe(45);
 %>
