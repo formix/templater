@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Jint.Native;
+using System;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -7,8 +8,8 @@ namespace Templater
 {
     public class Template
     {
-        private const string WRITE = "output.Write({1}{0}{1});";
-        private const string WRITE_LINE = "output.WriteLine({1}{0}{1});";
+        private const string WRITE = "out.Write({1}{0}{1});";
+        private const string WRITE_LINE = "out.WriteLine({1}{0}{1});";
 
         private Jint.Engine _engine;
         private string _script;
@@ -36,19 +37,9 @@ namespace Templater
         }
 
 
-        public void SetValue(object value, string name)
+        public void AddObject<T>(string name, T value)
         {
             _engine.SetValue(name, value);
-        }
-
-        public object GetValue(string name)
-        {
-            var value = _engine.GetValue(name);
-            if (value == null)
-            {
-                return null;
-            }
-            return value.AsObject();
         }
 
         public byte[] Render(object model = null)
@@ -70,17 +61,17 @@ namespace Templater
             if (!_scriptLoaded)
             {
                 _engine.Execute(Script);
-                _engine.SetValue("output", output);
+                _engine.SetValue("out", output);
                 _scriptLoaded = true;
             }
             _engine.SetValue("model", model);
-            _engine.Execute("render()");
+            _engine.Execute("__render__()");
             output.Flush();
         }
 
         private string BuildScript()
         {
-            StringBuilder script = new StringBuilder("function render() {\n\n");
+            StringBuilder script = new StringBuilder("function __render__() {\n\n");
             CompileTemplate(script);
             script.Append("\n\n}");
             return script.ToString();

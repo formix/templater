@@ -51,6 +51,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Align.cs" />
     <Compile Include="Models\Line.cs" />
     <Compile Include="Models\Quote.cs" />
     <Compile Include="TemplateTests.cs" />

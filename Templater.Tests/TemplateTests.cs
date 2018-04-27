@@ -18,6 +18,10 @@ namespace Templater.Tests
             }
 
             var template = new Template(templateText);
+
+            template.AddObject("align", new Align());
+            template.AddObject("format", (Func<string, decimal, string>)((f, a) => string.Format($"{{0:{f}}}", a)));
+
             var q = new Quote()
             {
                 Title = "Demo Quote"
