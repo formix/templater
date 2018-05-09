@@ -7,11 +7,11 @@ The result is: '<% =x %>'
 <% for (var i = 0; i < 3; i++) { %>
 Hello for the <%
     if (i === 0) {
-        output.Write("first");
+        out.Write("first");
     } else if (i === 1) {
-        output.Write("second");
+        out.Write("second");
     } else if (i === 2) {
-        output.Write("third");
+        out.Write("third");
     }
 %> time! <% } %>
 
