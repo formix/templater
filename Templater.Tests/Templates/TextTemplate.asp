@@ -1,12 +1,10 @@
 ﻿<%
-
     function tryMe(i) {
         out.WriteLine(i + ") That works!!!");
     }
-    
 %>
 +---------------------------------------------------------+
-|<% =align.Center(model.Quote.Title, 57) %>|
+| <% =align.Center(model.Quote.Title, 55) %> |
 +---------------------------+-------+----------+----------+
 | Description               |   Qty |    Price |   Amount |
 +---------------------------+-------+----------+----------+
