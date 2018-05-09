@@ -29,8 +29,8 @@ namespace Templater.Tests
 
         public string Center(string text, int totalWidth)
         {
-            int totalWidth1 = (text.Length + totalWidth) / 2;
-            return Right(Left(text, totalWidth1), totalWidth);
+            int halfWidth = (text.Length + totalWidth) / 2;
+            return Right(Left(text, halfWidth), totalWidth);
         }
     }
 }
